@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'me.monkey_cat'
+version = '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven {
+        name = 'papermc'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+build {
+    dependsOn(shadowJar)
+    mustRunAfter(shadowJar)
+}
+
+shadowJar {
+    configurations = [project.configurations.compileClasspath]
+}
+
+dependencies {
+    shadow "com.github.Smuddgge:SquishyYaml:1.7.0"
+    compileOnly "com.velocitypowered:velocity-api:${project.velocity_api_version}"
+    annotationProcessor "com.velocitypowered:velocity-api:${project.velocity_api_version}"
+}
+
+test {
+    useJUnitPlatform()
+}
