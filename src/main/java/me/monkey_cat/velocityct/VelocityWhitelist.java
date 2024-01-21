@@ -34,6 +34,7 @@ import java.util.ResourceBundle;
 public class VelocityWhitelist extends MainCategory {
     private final Locations locations;
     private final Whitelist whitelist;
+    private final TranslationRegistry registry = TranslationRegistry.create(Key.key("velocityct:velocityct"));
 
     @Inject
     public VelocityWhitelist(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
@@ -43,13 +44,13 @@ public class VelocityWhitelist extends MainCategory {
                 new Config(dataDirectory.resolve("config.yml")),
                 dataDirectory
         ));
+
+        registerLanguage(Locale.US);
+        registerLanguage(Locale.TRADITIONAL_CHINESE);
+        registry.defaultLocale(Locale.US);
+
         locations = new Locations(this.context, dataDirectory.resolve("locations.json"));
         whitelist = new Whitelist(this.context);
-
-        TranslationRegistry registry = TranslationRegistry.create(Key.key("velocityct:velocityct"));
-        ResourceBundle bundle = ResourceBundle.getBundle("plugin.i18n.velocityct", Locale.US, UTF8ResourceBundleControl.get());
-        registry.registerAll(Locale.US, bundle, true);
-        GlobalTranslator.translator().addSource(registry);
     }
 
     @Subscribe
@@ -64,5 +65,11 @@ public class VelocityWhitelist extends MainCategory {
         server.getEventManager().register(this, ServerPreConnectEvent.class, PostOrder.LAST, this.whitelist::onServerPreConnect);
 
         new WhitelistCommand(context).register(server.getCommandManager());
+    }
+
+    public void registerLanguage(Locale locale) {
+        ResourceBundle bundle = ResourceBundle.getBundle("plugin.i18n.velocityct", locale, UTF8ResourceBundleControl.get());
+        registry.registerAll(locale, bundle, true);
+        GlobalTranslator.translator().addSource(registry);
     }
 }

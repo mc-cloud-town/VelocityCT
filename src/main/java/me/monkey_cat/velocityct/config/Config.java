@@ -1,6 +1,5 @@
 package me.monkey_cat.velocityct.config;
 
-import com.github.smuddgge.squishyconfiguration.implementation.YamlConfiguration;
 import com.github.smuddgge.squishyconfiguration.interfaces.Configuration;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
@@ -14,12 +13,12 @@ import java.util.*;
 public class Config {
     private final File file;
     private final HashMap<String, HashSet<String>> serverWhitelist = new HashMap<>();
-    private final Configuration configuration;
+    private final CTYamlConfiguration configuration;
     private long lastModified;
 
     public Config(Path configPath) {
         this.file = configPath.toFile();
-        configuration = new YamlConfiguration(this.file);
+        configuration = new CTYamlConfiguration(this.file);
         configuration.load();
     }
 
@@ -47,6 +46,7 @@ public class Config {
     }
 
     public void writeDefault() {
+        //noinspection ResultOfMethodCallIgnored
         file.getParentFile().mkdirs();
         try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("config.yml")) {
             Files.delete(file.toPath());
@@ -90,15 +90,21 @@ public class Config {
     private Map<String, Set<String>> getItem(String path, boolean reload) {
         if (reload) tryLoad();
 
-        Map<String, Set<String>> groups = new HashMap<>();
+        Map<String, Set<String>> data = new HashMap<>();
         configuration.getMap(path).forEach((s, o) -> {
             if (o instanceof List<?>) {
                 List<String> names = ((List<?>) o).stream().map(Object::toString).toList();
-                groups.put(s, new HashSet<>(names));
+                data.put(s, new HashSet<>(names));
             }
         });
 
-        return groups;
+        return data;
+    }
+
+    private Map<String, List<String>> setToListType(Map<String, Set<String>> old) {
+        Map<String, List<String>> data = new HashMap<>();
+        old.forEach((s, o) -> data.put(s, o.stream().map(Object::toString).toList()));
+        return data;
     }
 
     private Map<String, Set<String>> getItem(String path) {
@@ -120,13 +126,21 @@ public class Config {
         return isEnable() && configuration.getBoolean("whitelistEnable");
     }
 
+    public void setWhitelistEnable(Boolean enable) {
+        configuration.set("enable", enable);
+    }
+
     public boolean hasInWhitelist(RegisteredServer server, Player player) {
         return hasInWhitelist(server.getServerInfo().getName(), player);
     }
 
     public boolean hasInWhitelist(String serverName, Player player) {
+        return hasInWhitelist(serverName, player.getUsername());
+    }
+
+    public boolean hasInWhitelist(String serverName, String playerName) {
         tryLoad();
-        return serverWhitelist.containsKey(serverName) && serverWhitelist.get(serverName).contains(player.getUsername());
+        return serverWhitelist.containsKey(serverName) && serverWhitelist.get(serverName).contains(playerName);
     }
 
     public String getKickMessage() {
@@ -148,11 +162,30 @@ public class Config {
         return getItem("groups");
     }
 
+    public void setGroups(Map<String, Set<String>> groups) {
+        configuration.set("groups", setToListType(groups));
+        save();
+    }
+
     public Map<String, Set<String>> getWhitelist() {
         return getItem("whitelist");
     }
 
+    public void setWhitelist(Map<String, Set<String>> whitelist) {
+        configuration.set("whitelist", setToListType(whitelist));
+        save();
+    }
+
     public Map<String, Set<String>> getSpecialWhitelist() {
         return getItem("specialWhitelist");
+    }
+
+    public void setSpecialWhitelist(Map<String, Set<String>> specialWhitelist) {
+        configuration.set("specialWhitelist", setToListType(specialWhitelist));
+        save();
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
     }
 }
