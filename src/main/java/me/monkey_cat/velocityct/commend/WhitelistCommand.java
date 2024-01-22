@@ -10,6 +10,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandSource;
+import me.monkey_cat.velocityct.VelocityWhitelistMeta;
 import me.monkey_cat.velocityct.utils.Context;
 import me.monkey_cat.velocityct.utils.MainCategory;
 import net.kyori.adventure.text.Component;
@@ -63,6 +64,7 @@ public class WhitelistCommand extends MainCategory {
 
     public void register(CommandManager commandManager) {
         var root = literal("whitelistct")
+                .requires(s -> s.hasPermission(VelocityWhitelistMeta.ID + ".command"))
                 .executes(this::showPluginInfo)
                 .then(literal("groups")
                         .then(literal("list").executes(this::showGroups)
