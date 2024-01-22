@@ -78,10 +78,9 @@ public class Config {
                         return v;
                     });
                 } else {
-                    serverWhitelist.computeIfPresent(serverName, (k, v) -> {
-                        v.add(username);
-                        return v;
-                    });
+                    HashSet<String> tmp = serverWhitelist.getOrDefault(serverName, new HashSet<>());
+                    tmp.add(username);
+                    serverWhitelist.put(serverName, tmp);
                 }
             }
         }
