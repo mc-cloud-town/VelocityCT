@@ -9,9 +9,9 @@ public class Config extends BaseConfig {
         super(configPath);
     }
 
-    public boolean isEnable() {
+    public boolean isLocationsEnable() {
         tryLoad();
-        return configuration.getBoolean("enable");
+        return configuration.getBoolean("locationsEnable");
     }
 
     @Override
