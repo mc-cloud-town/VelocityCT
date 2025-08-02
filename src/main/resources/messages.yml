@@ -1,24 +1,3 @@
-enable: true
-locationsEnable: true
-whitelistEnable: true
 kickMessage: '<red>You are not a member of this server and cannot enter.'
 tryMoveKickMessage: '<red>You are not a member of this server and cannot enter.'
 autoGuidanceMoveMessage: '<red>You are not in the <old_server> whitelist, you have been directed to <new_server>'
-groups:
-  level1:
-    - survival
-    - creative
-  level2:
-    - survival
-
-whitelist:
-  level1:
-    - user1
-  level2:
-    - user2
-
-specialWhitelist:
-  user1:
-    - '!survival'
-  user3:
-    - survival

@@ -11,6 +11,8 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import me.monkey_cat.velocityct.commend.WhitelistCommand;
 import me.monkey_cat.velocityct.config.Config;
+import me.monkey_cat.velocityct.config.MessageConfig;
+import me.monkey_cat.velocityct.config.WhitelistConfig;
 import me.monkey_cat.velocityct.feature.Locations;
 import me.monkey_cat.velocityct.feature.Whitelist;
 import me.monkey_cat.velocityct.utils.Context;
@@ -42,6 +44,8 @@ public class VelocityWhitelist extends MainCategory {
                 server,
                 logger,
                 new Config(dataDirectory.resolve("config.yml")),
+                new MessageConfig(dataDirectory.resolve("messages.yml")),
+                new WhitelistConfig(dataDirectory.resolve("whitelist.yml")),
                 dataDirectory
         ));
 
@@ -56,6 +60,8 @@ public class VelocityWhitelist extends MainCategory {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         config.tryLoad();
+        messageConfig.tryLoad();
+        whitelistConfig.tryLoad();
 
         // locations
         server.getEventManager().register(this, DisconnectEvent.class, this.locations::onDisconnectConnect);

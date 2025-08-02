@@ -96,7 +96,7 @@ public class WhitelistCommand extends MainCategory {
     }
 
     private CompletableFuture<Suggestions> suggestGroups(CommandContext<CommandSource> ctx, SuggestionsBuilder suggestions) {
-        return suggestMatching(config.getGroups().keySet(), suggestions);
+        return suggestMatching(whitelistConfig.getGroups().keySet(), suggestions);
     }
 
     private RequiredArgumentBuilder<CommandSource, String> argumentPlayerName() {
@@ -132,13 +132,13 @@ public class WhitelistCommand extends MainCategory {
     }
 
     private int setEnable(CommandContext<CommandSource> ctx) {
-        config.setWhitelistEnable(true);
+        whitelistConfig.setEnable(true);
         ctx.getSource().sendMessage(Component.translatable("velocityct.whitelist.enable"));
         return 0;
     }
 
     private int setDisable(CommandContext<CommandSource> ctx) {
-        config.setWhitelistEnable(true);
+        whitelistConfig.setEnable(true);
         ctx.getSource().sendMessage(Component.translatable("velocityct.whitelist.disable"));
         return 0;
     }
@@ -148,13 +148,13 @@ public class WhitelistCommand extends MainCategory {
         Optional<String> groupNameOpt = getStringOpt(ctx, GROUP_NAME);
         if (groupNameOpt.isPresent()) {
             String groupName = groupNameOpt.get();
-            Map<String, Set<String>> groups = config.getGroups();
+            Map<String, Set<String>> groups = whitelistConfig.getGroups();
             if (groups.containsKey(groupName)) {
                 source.sendMessage(Component.translatable("velocityct.whitelist.groupAlreadyExists", NamedTextColor.RED, Component.text(groupName)));
                 return -1;
             }
             groups.put(groupName, new HashSet<>());
-            config.setGroups(groups);
+            whitelistConfig.setGroups(groups);
             source.sendMessage(Component.translatable("velocityct.whitelist.groupCreateCompleted", Component.text(groupName)));
         }
         return 0;
@@ -163,13 +163,13 @@ public class WhitelistCommand extends MainCategory {
     private int deleteGroup(CommandContext<CommandSource> ctx) {
         CommandSource source = ctx.getSource();
         String groupName = getString(ctx, GROUP_NAME);
-        Map<String, Set<String>> groups = config.getGroups();
+        Map<String, Set<String>> groups = whitelistConfig.getGroups();
         if (!groups.containsKey(groupName)) {
             source.sendMessage(Component.translatable("velocityct.whitelist.groupNotFound", NamedTextColor.RED, Component.text(groupName)));
             return -1;
         }
         groups.remove(groupName);
-        config.setGroups(groups);
+        whitelistConfig.setGroups(groups);
         source.sendMessage(Component.translatable("velocityct.whitelist.groupDeleteCompleted", Component.text(groupName)));
         return 0;
     }
@@ -178,11 +178,11 @@ public class WhitelistCommand extends MainCategory {
         String groupName = getString(ctx, GROUP_NAME);
         String playerName = getString(ctx, PLAYER_NAME);
 
-        Map<String, Set<String>> whitelist = config.getWhitelist();
+        Map<String, Set<String>> whitelist = whitelistConfig.getWhitelist();
         Set<String> players = whitelist.getOrDefault(groupName, new HashSet<>());
         players.add(playerName);
         whitelist.put(groupName, players);
-        config.setWhitelist(whitelist);
+        whitelistConfig.setWhitelist(whitelist);
 
         ctx.getSource().sendMessage(Component.translatable("velocityct.whitelist.groupAddPlayerCompleted",
                 Component.text(groupName), Component.text(playerName)));
@@ -193,11 +193,11 @@ public class WhitelistCommand extends MainCategory {
         String groupName = getString(ctx, GROUP_NAME);
         String playerName = getString(ctx, PLAYER_NAME);
 
-        Map<String, Set<String>> whitelist = config.getWhitelist();
+        Map<String, Set<String>> whitelist = whitelistConfig.getWhitelist();
         Set<String> players = whitelist.getOrDefault(groupName, new HashSet<>());
         players.remove(playerName);
         whitelist.put(groupName, players);
-        config.setWhitelist(whitelist);
+        whitelistConfig.setWhitelist(whitelist);
 
         ctx.getSource().sendMessage(Component.translatable("velocityct.whitelist.groupRemovePlayerCompleted",
                 Component.text(groupName), Component.text(playerName)));
@@ -208,11 +208,11 @@ public class WhitelistCommand extends MainCategory {
         String serverName = getString(ctx, SERVER_NAME);
         String playerName = getString(ctx, PLAYER_NAME);
 
-        Map<String, Set<String>> specialWhitelist = config.getSpecialWhitelist();
+        Map<String, Set<String>> specialWhitelist = whitelistConfig.getSpecialWhitelist();
         Set<String> servers = specialWhitelist.getOrDefault(playerName, new HashSet<>());
         servers.add(serverName);
         specialWhitelist.put(playerName, servers);
-        config.setSpecialWhitelist(specialWhitelist);
+        whitelistConfig.setSpecialWhitelist(specialWhitelist);
         ctx.getSource().sendMessage(Component.translatable("velocityct.whitelist.serverAddPlayerCompleted",
                 Component.text(serverName), Component.text(playerName)));
 
@@ -223,16 +223,16 @@ public class WhitelistCommand extends MainCategory {
         String serverName = getString(ctx, SERVER_NAME);
         String playerName = getString(ctx, PLAYER_NAME);
 
-        Map<String, Set<String>> specialWhitelist = config.getSpecialWhitelist();
+        Map<String, Set<String>> specialWhitelist = whitelistConfig.getSpecialWhitelist();
         Set<String> servers = specialWhitelist.getOrDefault(playerName, new HashSet<>());
         servers.remove(serverName);
 
-        if (config.hasInWhitelist(serverName, playerName)) {
+        if (whitelistConfig.hasInWhitelist(serverName, playerName)) {
             servers.add("!" + serverName);
         }
         if (servers.isEmpty()) specialWhitelist.remove(playerName);
         else specialWhitelist.put(playerName, servers);
-        config.setSpecialWhitelist(specialWhitelist);
+        whitelistConfig.setSpecialWhitelist(specialWhitelist);
 
         ctx.getSource().sendMessage(Component.translatable("velocityct.whitelist.serverRemovePlayerCompleted",
                 Component.text(serverName), Component.text(playerName)));
@@ -244,7 +244,7 @@ public class WhitelistCommand extends MainCategory {
         Optional<String> groupNameOpt = getStringOpt(ctx, GROUP_NAME);
         if (groupNameOpt.isPresent()) {
             String groupName = groupNameOpt.get();
-            Set<String> groups = config.getGroups().getOrDefault(groupName, null);
+            Set<String> groups = whitelistConfig.getGroups().getOrDefault(groupName, null);
             if (groups == null) {
                 source.sendMessage(Component.translatable("velocityct.whitelist.groupNotFound", NamedTextColor.RED));
                 return -1;
@@ -269,7 +269,7 @@ public class WhitelistCommand extends MainCategory {
             }
             source.sendMessage(message);
         } else {
-            List<String> groupsList = config.getGroups().keySet().stream().sorted().toList();
+            List<String> groupsList = whitelistConfig.getGroups().keySet().stream().sorted().toList();
             Component message = Component.translatable("velocityct.whitelist.groupShow", NamedTextColor.DARK_AQUA);
             ctx.getSource().sendMessage(message.append(Component.text(" " + String.join(", ", groupsList), NamedTextColor.GRAY)));
         }
@@ -281,7 +281,7 @@ public class WhitelistCommand extends MainCategory {
 
         if (groupNameOpt.isPresent()) {
             String groupName = groupNameOpt.get();
-            Set<String> players = config.getWhitelist().getOrDefault(groupName, null);
+            Set<String> players = whitelistConfig.getWhitelist().getOrDefault(groupName, null);
 
             if (players == null) {
                 ctx.getSource().sendMessage(Component.translatable("velocityct.whitelist.groupNotFound", NamedTextColor.RED));

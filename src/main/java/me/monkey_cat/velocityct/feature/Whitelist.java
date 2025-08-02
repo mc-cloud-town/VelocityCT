@@ -13,6 +13,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import java.util.Optional;
 
 public class Whitelist extends MainCategory {
+
     public Whitelist(Context context) {
         super(context);
     }
@@ -20,22 +21,22 @@ public class Whitelist extends MainCategory {
     public void onServerPreConnect(ServerPreConnectEvent event) {
         ProxyServer proxyServer = server;
 
-        if (!config.isWhitelistEnable()) return;
+        if (!whitelistConfig.isEnable()) return;
 
         Optional<RegisteredServer> server = event.getResult().getServer();
         server.ifPresent(registeredServer -> {
             Player player = event.getPlayer();
-            if (!config.hasInWhitelist(registeredServer, player)) {
+            if (!whitelistConfig.hasInWhitelist(registeredServer, player)) {
                 RegisteredServer previousServer = event.getPreviousServer();
 
                 if (previousServer == null) {
                     for (String server1Name : proxyServer.getConfiguration().getAttemptConnectionOrder()) {
-                        if (config.hasInWhitelist(server1Name, player)) {
+                        if (whitelistConfig.hasInWhitelist(server1Name, player)) {
                             Optional<RegisteredServer> server1 = proxyServer.getServer(server1Name);
                             if (server1.isPresent()) {
                                 event.setResult(ServerPreConnectEvent.ServerResult.allowed(server1.get()));
                                 player.sendMessage(MiniMessage.miniMessage().deserialize(
-                                        config.getAutoGuidanceMoveMessage(),
+                                        messageConfig.getAutoGuidanceMoveMessage(),
                                         Placeholder.component("old_server", Component.text(event.getOriginalServer().getServerInfo().getName())),
                                         Placeholder.component("new_server", Component.text(server1Name))
                                 ));
@@ -43,9 +44,9 @@ public class Whitelist extends MainCategory {
                             }
                         }
                     }
-                    player.disconnect(MiniMessage.miniMessage().deserialize(config.getKickMessage()));
+                    player.disconnect(MiniMessage.miniMessage().deserialize(messageConfig.getKickMessage()));
                 } else {
-                    player.sendMessage(MiniMessage.miniMessage().deserialize(config.getTryMoveKickMessage(),
+                    player.sendMessage(MiniMessage.miniMessage().deserialize(messageConfig.getTryMoveKickMessage(),
                             Placeholder.component("old_server", Component.text(previousServer.getServerInfo().getName())),
                             Placeholder.component("new_server", Component.text(event.getOriginalServer().getServerInfo().getName())))
                     );

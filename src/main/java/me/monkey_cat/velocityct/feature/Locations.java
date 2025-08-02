@@ -38,7 +38,7 @@ public class Locations extends MainCategory {
     }
 
     public void onServerPreConnect(ServerPreConnectEvent event) {
-        if (!config.isLocationsEnable() || event.getPreviousServer() != null) return;
+        if (!whitelistConfig.isLocationsEnable() || event.getPreviousServer() != null) return;
 
         Player player = event.getPlayer();
         Optional<ServerConnection> currentServer = player.getCurrentServer();
@@ -55,7 +55,7 @@ public class Locations extends MainCategory {
     }
 
     public void onDisconnectConnect(DisconnectEvent event) {
-        if (!config.isLocationsEnable()) return;
+        if (!whitelistConfig.isLocationsEnable()) return;
 
         Player player = event.getPlayer();
         Optional<ServerConnection> server = player.getCurrentServer();

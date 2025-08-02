@@ -1,0 +1,20 @@
+enable: true
+
+groups:
+  level1:
+    - survival
+    - creative
+  level2:
+    - survival
+
+whitelist:
+  level1:
+    - user1
+  level2:
+    - user2
+
+specialWhitelist:
+  user1:
+    - '!survival'
+  user3:
+    - survival
